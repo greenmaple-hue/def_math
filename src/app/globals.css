@@ -13,3 +13,42 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+@keyframes draw-path {
+  from {
+    stroke-dashoffset: 1000;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-draw {
+  stroke-dasharray: 1000;
+  animation: draw-path 3s ease-in-out forwards;
+}
+
+.animate-draw-fast {
+  stroke-dasharray: 1000;
+  animation: draw-path 1.5s ease-in-out forwards;
+}
+
+.animate-draw-delayed {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: draw-path 2.5s ease-in-out 0.5s forwards;
+}
+
+@keyframes fill-fade-in {
+  from {
+    fill-opacity: 0;
+  }
+  to {
+    fill-opacity: 0.5;
+  }
+}
+
+.animate-fill {
+  fill-opacity: 0;
+  animation: fill-fade-in 1.5s ease-in-out 1.5s forwards;
+}

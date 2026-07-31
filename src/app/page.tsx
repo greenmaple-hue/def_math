@@ -21,30 +21,54 @@ export default function Home() {
         
         {/* Phase 0: Circles */}
         <div className={`absolute inset-0 transition-opacity duration-1000 ${phase === 0 ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="absolute top-1/4 left-1/4 w-64 h-64 border-[1px] border-sky-200 rounded-full animate-[spin_10s_linear_infinite]" />
-          <div className="absolute top-1/2 right-1/4 w-96 h-96 border-[2px] border-indigo-100 rounded-full" style={{ animation: 'ping 6s cubic-bezier(0, 0, 0.2, 1) infinite' }} />
-          <div className="absolute bottom-1/4 left-1/3 w-48 h-48 border-[1.5px] border-pink-100 rounded-full" />
+          <svg className="absolute inset-0 w-full h-full pointer-events-none">
+            {phase === 0 && (
+              <>
+                <circle cx="30%" cy="30%" r="150" fill="none" stroke="#bae6fd" strokeWidth="1.5" className="animate-draw-fast" />
+                <circle cx="70%" cy="60%" r="200" fill="none" stroke="#c7d2fe" strokeWidth="2" className="animate-draw" />
+                <circle cx="40%" cy="80%" r="100" fill="none" stroke="#fbcfe8" strokeWidth="1.5" className="animate-draw-delayed" />
+              </>
+            )}
+          </svg>
         </div>
 
-        {/* Phase 1: Set Symbols */}
-        <div className={`absolute inset-0 transition-opacity duration-1000 ${phase === 1 ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="absolute top-1/3 left-1/4 text-8xl text-sky-200/50 font-serif rotate-12 animate-pulse">∪</div>
-          <div className="absolute bottom-1/3 right-1/4 text-9xl text-indigo-200/40 font-serif -rotate-12 animate-pulse delay-75">∩</div>
-          <div className="absolute top-1/2 left-1/2 text-7xl text-pink-200/50 font-serif rotate-45 animate-pulse delay-150">∈</div>
-          <div className="absolute top-1/4 right-1/3 text-8xl text-gray-200/60 font-serif -rotate-6 animate-pulse delay-300">⊂</div>
+        {/* Phase 1: Venn Diagram */}
+        <div className={`absolute inset-0 transition-opacity duration-1000 flex items-center justify-center ${phase === 1 ? 'opacity-100' : 'opacity-0'}`}>
+          <svg viewBox="0 0 400 300" className="w-full max-w-2xl h-auto pointer-events-none">
+            {phase === 1 && (
+              <>
+                {/* Intersection Area */}
+                <path d="M 200 86.6 A 100 100 0 0 0 200 213.4 A 100 100 0 0 0 200 86.6 Z" fill="#bae6fd" className="animate-fill" />
+                {/* Left Circle A */}
+                <circle cx="150" cy="150" r="100" fill="none" stroke="#94a3b8" strokeWidth="2" className="animate-draw" />
+                {/* Right Circle B */}
+                <circle cx="250" cy="150" r="100" fill="none" stroke="#94a3b8" strokeWidth="2" className="animate-draw-delayed" />
+                
+                {/* Labels */}
+                <text x="100" y="150" fill="#94a3b8" fontSize="24" className="animate-fill font-serif">A</text>
+                <text x="300" y="150" fill="#94a3b8" fontSize="24" className="animate-fill font-serif">B</text>
+              </>
+            )}
+          </svg>
         </div>
 
         {/* Phase 2: Graphs */}
         <div className={`absolute inset-0 transition-opacity duration-1000 flex items-center justify-center ${phase === 2 ? 'opacity-100' : 'opacity-0'}`}>
-          <svg className="w-full h-full opacity-40" viewBox="0 0 100 100" preserveAspectRatio="none">
-            {/* Rational function style */}
-            <path d="M 50,0 Q 55,45 100,50" fill="none" stroke="#bae6fd" strokeWidth="0.5" />
-            <path d="M 0,50 Q 45,55 50,100" fill="none" stroke="#bae6fd" strokeWidth="0.5" />
-            {/* Irrational function style */}
-            <path d="M 50,50 Q 75,25 100,20" fill="none" stroke="#c7d2fe" strokeWidth="0.5" />
-            {/* Axes */}
-            <line x1="50" y1="0" x2="50" y2="100" stroke="#e2e8f0" strokeWidth="0.2" />
-            <line x1="0" y1="50" x2="100" y2="50" stroke="#e2e8f0" strokeWidth="0.2" />
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-full opacity-60 pointer-events-none">
+            {phase === 2 && (
+              <>
+                {/* Axes */}
+                <line x1="50" y1="0" x2="50" y2="100" stroke="#cbd5e1" strokeWidth="0.2" className="animate-draw-fast" />
+                <line x1="0" y1="50" x2="100" y2="50" stroke="#cbd5e1" strokeWidth="0.2" className="animate-draw-fast" />
+                
+                {/* Rational function style */}
+                <path d="M 50,0 Q 55,45 100,50" fill="none" stroke="#bae6fd" strokeWidth="0.5" className="animate-draw-delayed" />
+                <path d="M 0,50 Q 45,55 50,100" fill="none" stroke="#bae6fd" strokeWidth="0.5" className="animate-draw-delayed" />
+                
+                {/* Irrational function style */}
+                <path d="M 50,50 Q 75,25 100,20" fill="none" stroke="#c7d2fe" strokeWidth="0.5" className="animate-draw" />
+              </>
+            )}
           </svg>
         </div>
       </div>

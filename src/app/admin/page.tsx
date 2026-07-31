@@ -2,12 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { User, getUsers, saveUsers, useAuth } from "@/lib/auth";
+import { ChevronRight, ChevronDown, School, Users, User as UserIcon } from "lucide-react";
 
 export default function AdminDashboard() {
   const { user, isLoading } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   
+  // Tree state
+  const [expandedSchools, setExpandedSchools] = useState<Record<string, boolean>>({});
+  const [expandedGrades, setExpandedGrades] = useState<Record<string, boolean>>({});
+  const [expandedClasses, setExpandedClasses] = useState<Record<string, boolean>>({});
+
   // States for actions
   const [newPassword, setNewPassword] = useState("");
   const [deletePassword, setDeletePassword] = useState("");
@@ -16,16 +22,14 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (isLoading) return;
     
-    // Basic protection (Client side only)
+    // Basic protection
     if (!user || user.id !== "admin") {
       alert("접근 권한이 없습니다.");
       window.location.href = "/";
       return;
     }
     
-    // Load users (excluding admin itself if it's there)
-    const loadedUsers = getUsers();
-    setUsers(loadedUsers);
+    setUsers(getUsers());
   }, [user, isLoading]);
 
   if (isLoading) {
@@ -50,8 +54,6 @@ export default function AdminDashboard() {
     );
     saveUsers(updatedUsers);
     setUsers(updatedUsers);
-    
-    // Update local state
     setSelectedUser({ ...selectedUser, password: newPassword });
     setNewPassword("");
     alert("비밀번호가 성공적으로 변경되었습니다.");
@@ -66,12 +68,33 @@ export default function AdminDashboard() {
     const updatedUsers = users.filter(u => u.id !== selectedUser.id);
     saveUsers(updatedUsers);
     setUsers(updatedUsers);
-    
     setSelectedUser(null);
     setShowDeleteConfirm(false);
     setDeletePassword("");
     alert("계정이 성공적으로 삭제되었습니다.");
   };
+
+  // Build Hierarchy: School -> Grade -> Class -> User[]
+  // ID format: 1st digit = grade, 2nd digit = class
+  const hierarchy: Record<string, Record<string, Record<string, User[]>>> = {};
+  
+  users.forEach(u => {
+    if (u.id === "admin") return;
+    
+    const schoolName = u.school;
+    const grade = u.id.charAt(0) || "Unknown";
+    const classNum = u.id.charAt(1) || "Unknown";
+    
+    if (!hierarchy[schoolName]) hierarchy[schoolName] = {};
+    if (!hierarchy[schoolName][grade]) hierarchy[schoolName][grade] = {};
+    if (!hierarchy[schoolName][grade][classNum]) hierarchy[schoolName][grade][classNum] = [];
+    
+    hierarchy[schoolName][grade][classNum].push(u);
+  });
+
+  const toggleSchool = (school: string) => setExpandedSchools(prev => ({ ...prev, [school]: !prev[school] }));
+  const toggleGrade = (gradeKey: string) => setExpandedGrades(prev => ({ ...prev, [gradeKey]: !prev[gradeKey] }));
+  const toggleClass = (classKey: string) => setExpandedClasses(prev => ({ ...prev, [classKey]: !prev[classKey] }));
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -82,30 +105,86 @@ export default function AdminDashboard() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* User List */}
-          <div className="md:col-span-1 bg-white rounded-3xl shadow-sm border border-gray-100 p-6 overflow-hidden flex flex-col h-[600px]">
-            <h2 className="text-lg font-semibold mb-4 text-gray-800 border-b pb-4">회원 가입 명단</h2>
+          {/* Tree List */}
+          <div className="md:col-span-1 bg-white rounded-3xl shadow-sm border border-gray-100 p-6 flex flex-col h-[600px] overflow-hidden">
+            <h2 className="text-lg font-semibold mb-4 text-gray-800 border-b pb-4">학생 가입 명단</h2>
             <div className="overflow-y-auto flex-1 pr-2 space-y-2">
-              {users.length === 0 ? (
-                <p className="text-gray-500 text-sm text-center py-8">가입된 회원이 없습니다.</p>
+              {Object.keys(hierarchy).length === 0 ? (
+                <p className="text-gray-500 text-sm text-center py-8">가입된 학생이 없습니다.</p>
               ) : (
-                users.map(u => (
-                  <button
-                    key={u.id}
-                    onClick={() => {
-                      setSelectedUser(u);
-                      setShowDeleteConfirm(false);
-                      setNewPassword("");
-                    }}
-                    className={`w-full text-left p-4 rounded-2xl transition-all ${
-                      selectedUser?.id === u.id 
-                        ? "bg-sky-50 border border-sky-200" 
-                        : "bg-gray-50 border border-transparent hover:bg-gray-100"
-                    }`}
-                  >
-                    <div className="font-semibold text-gray-900">{u.name}</div>
-                    <div className="text-sm text-gray-500">{u.id} | {u.school}</div>
-                  </button>
+                Object.entries(hierarchy).map(([schoolName, grades]) => (
+                  <div key={schoolName} className="space-y-1">
+                    <button 
+                      onClick={() => toggleSchool(schoolName)}
+                      className="w-full flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg transition-colors text-left font-semibold text-gray-800"
+                    >
+                      {expandedSchools[schoolName] ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                      <School className="w-4 h-4 text-sky-500" />
+                      {schoolName}
+                    </button>
+                    
+                    {expandedSchools[schoolName] && (
+                      <div className="pl-6 space-y-1">
+                        {Object.entries(grades).map(([grade, classes]) => {
+                          const gradeKey = `${schoolName}-${grade}`;
+                          return (
+                            <div key={gradeKey} className="space-y-1">
+                              <button 
+                                onClick={() => toggleGrade(gradeKey)}
+                                className="w-full flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg transition-colors text-left text-sm font-medium text-gray-700"
+                              >
+                                {expandedGrades[gradeKey] ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                                {grade}학년
+                              </button>
+
+                              {expandedGrades[gradeKey] && (
+                                <div className="pl-4 space-y-1">
+                                  {Object.entries(classes).map(([classNum, studentList]) => {
+                                    const classKey = `${gradeKey}-${classNum}`;
+                                    return (
+                                      <div key={classKey} className="space-y-1">
+                                        <button 
+                                          onClick={() => toggleClass(classKey)}
+                                          className="w-full flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg transition-colors text-left text-sm text-gray-600"
+                                        >
+                                          {expandedClasses[classKey] ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                                          <Users className="w-3 h-3 text-indigo-400" />
+                                          {classNum}반
+                                        </button>
+
+                                        {expandedClasses[classKey] && (
+                                          <div className="pl-6 space-y-1">
+                                            {studentList.map(student => (
+                                              <button
+                                                key={student.id}
+                                                onClick={() => {
+                                                  setSelectedUser(student);
+                                                  setShowDeleteConfirm(false);
+                                                  setNewPassword("");
+                                                }}
+                                                className={`w-full flex items-center gap-2 p-2 text-sm rounded-lg transition-colors text-left ${
+                                                  selectedUser?.id === student.id 
+                                                    ? "bg-sky-50 text-sky-700 font-semibold" 
+                                                    : "hover:bg-gray-50 text-gray-600"
+                                                }`}
+                                              >
+                                                <UserIcon className="w-3 h-3" />
+                                                {student.name} ({student.id})
+                                              </button>
+                                            ))}
+                                          </div>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
                 ))
               )}
             </div>
@@ -114,9 +193,9 @@ export default function AdminDashboard() {
           {/* User Detail Panel */}
           <div className="md:col-span-2">
             {selectedUser ? (
-              <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 space-y-8">
+              <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 space-y-8 h-[600px] overflow-y-auto">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6 border-b pb-4">회원 상세 정보</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6 border-b pb-4">학생 상세 정보</h2>
                   <div className="grid grid-cols-2 gap-y-4 text-sm">
                     <div className="text-gray-500">이름</div>
                     <div className="font-medium text-gray-900">{selectedUser.name}</div>
@@ -207,7 +286,7 @@ export default function AdminDashboard() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                   </svg>
                 </div>
-                <p>좌측 명단에서 회원을 선택해주세요.</p>
+                <p>좌측 트리를 열어 학생을 선택해주세요.</p>
               </div>
             )}
           </div>
