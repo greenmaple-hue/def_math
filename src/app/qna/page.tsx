@@ -47,7 +47,7 @@ export default function QnaListPage() {
             <p className="text-gray-500 mt-2">모르는 문제는 언제든지 질문해 보세요.</p>
           </div>
           <Link 
-            href="/qna/new"
+            href={`/qna/new?subject=${encodeURIComponent(filterSubject)}`}
             className="flex items-center gap-2 px-6 py-3 bg-gray-900 hover:bg-black text-white font-bold rounded-xl transition-colors whitespace-nowrap shadow-sm"
           >
             <Pencil className="w-4 h-4" />

@@ -1,18 +1,22 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Image as ImageIcon, Send, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
 
 const SUBJECTS = ["공통수학 1", "공통수학 2", "대수", "미적분 1", "미적분 2", "확률과 통계", "기하"];
 
-export default function NewQnaPage() {
+function NewQnaForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
   
-  const [subject, setSubject] = useState(SUBJECTS[0]);
+  const initialSubject = searchParams.get("subject") || "";
+  const validSubject = SUBJECTS.includes(initialSubject) ? initialSubject : SUBJECTS[0];
+  
+  const [subject, setSubject] = useState(validSubject);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -182,5 +186,13 @@ export default function NewQnaPage() {
         </form>
       </main>
     </div>
+  );
+}
+
+export default function NewQnaPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gray-50"><Loader2 className="w-8 h-8 animate-spin text-gray-400" /></div>}>
+      <NewQnaForm />
+    </Suspense>
   );
 }
