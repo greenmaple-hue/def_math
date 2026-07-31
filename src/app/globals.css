@@ -16,7 +16,7 @@ body {
 
 @keyframes draw-path {
   0% {
-    stroke-dashoffset: 1000;
+    stroke-dashoffset: 2000;
     stroke-opacity: 1;
   }
   60% {
@@ -30,18 +30,18 @@ body {
 }
 
 .animate-draw {
-  stroke-dasharray: 1000;
+  stroke-dasharray: 2000;
   animation: draw-path 4s ease-in-out infinite;
 }
 
 .animate-draw-fast {
-  stroke-dasharray: 1000;
+  stroke-dasharray: 2000;
   animation: draw-path 3s ease-in-out infinite;
 }
 
 .animate-draw-delayed {
-  stroke-dasharray: 1000;
-  stroke-dashoffset: 1000;
+  stroke-dasharray: 2000;
+  stroke-dashoffset: 2000;
   animation: draw-path 4s ease-in-out 0.5s infinite;
 }
 

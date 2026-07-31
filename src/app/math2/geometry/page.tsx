@@ -1,24 +1,26 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { ArrowLeft, RefreshCw, ChevronDown, ChevronRight, Play } from "lucide-react";
-import { supabase } from "@/lib/supabase";
-import { useAuth } from "@/lib/auth";
-
-type Point = { x: number; y: number };
-
-const INITIAL_SHAPE: Point[] = [
-  { x: 2, y: 5 }, { x: 0, y: 1 }, { x: 1, y: 1 }, { x: 1, y: -1 }, 
-  { x: 3, y: -1 }, { x: 3, y: 1 }, { x: 4, y: 1 }
-];
-
-const SVG_SIZE = 500;
-const GRID_SIZE = 20; 
-const STEP = SVG_SIZE / GRID_SIZE; 
+import { useState } from "react";
+import { ArrowLeft, ChevronDown, ChevronRight, Play, Brain, Gamepad2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function GeometryPage() {
+  const router = useRouter();
   const [expandedChapter, setExpandedChapter] = useState<number>(3);
   const [expandedSub, setExpandedSub] = useState<number>(2);
+
+  // AI Quiz Form State
+  const [difficulty, setDifficulty] = useState<"최하"|"하"|"중"|"상"|"최상">("중");
+  const [questionCount, setQuestionCount] = useState<number>(5);
+
+  const handleStartAiQuiz = () => {
+    // Navigate to AI quiz page with query params
+    const searchParams = new URLSearchParams({
+      difficulty,
+      count: questionCount.toString()
+    });
+    router.push(`/math2/geometry/ai-quiz?${searchParams.toString()}`);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -103,11 +105,92 @@ export default function GeometryPage() {
                     className="w-full flex items-center gap-3 p-4 hover:bg-sky-50 transition-colors text-left"
                   >
                     <span className="text-sm font-bold text-sky-700">02. 대칭이동</span>
-                    <span className="px-2 py-1 bg-sky-100 text-sky-600 text-[10px] font-bold rounded-full ml-auto">실습 게임</span>
                   </button>
+                  
                   {expandedSub === 2 && (
-                    <div className="p-6 border-t border-sky-100/50">
-                      <GeometryGame />
+                    <div className="p-6 border-t border-sky-100/50 flex flex-col gap-6">
+                      
+                      {/* Game Link */}
+                      <a 
+                        href="/math2/geometry/game" 
+                        className="group flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-white rounded-2xl border border-sky-100 shadow-sm hover:shadow-md transition-all hover:border-sky-300 gap-4"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="p-3 bg-sky-50 text-sky-500 rounded-xl group-hover:bg-sky-500 group-hover:text-white transition-colors">
+                            <Gamepad2 className="w-6 h-6" />
+                          </div>
+                          <div>
+                            <h3 className="font-bold text-gray-900 group-hover:text-sky-700 transition-colors">정리하기 - 데칼코마니 게임</h3>
+                            <p className="text-sm text-gray-500">대칭이동의 개념을 시각적으로 복습해보세요.</p>
+                          </div>
+                        </div>
+                        <div className="hidden sm:flex p-2 text-sky-400 group-hover:text-sky-600 transition-colors group-hover:translate-x-1">
+                          <ChevronRight className="w-5 h-5" />
+                        </div>
+                      </a>
+
+                      {/* AI Quiz Form */}
+                      <div className="bg-white rounded-2xl border border-purple-100 shadow-sm overflow-hidden">
+                        <div className="p-5 border-b border-purple-50 bg-gradient-to-r from-purple-50/50 to-white flex items-center gap-3">
+                          <div className="p-2 bg-purple-100 text-purple-600 rounded-lg">
+                            <Brain className="w-5 h-5" />
+                          </div>
+                          <h3 className="font-bold text-gray-900">AI 생성 문제 풀기</h3>
+                          <span className="px-2.5 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded-full ml-auto">2022 개정 교육과정 반영</span>
+                        </div>
+                        
+                        <div className="p-6 space-y-6">
+                          {/* Difficulty */}
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-3">난이도 선택</label>
+                            <div className="flex flex-wrap gap-2">
+                              {["최하", "하", "중", "상", "최상"].map((level) => (
+                                <button
+                                  key={level}
+                                  onClick={() => setDifficulty(level as any)}
+                                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                                    difficulty === level 
+                                      ? "bg-purple-600 text-white shadow-md shadow-purple-200" 
+                                      : "bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100"
+                                  }`}
+                                >
+                                  {level}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Question Count Slider */}
+                          <div>
+                            <div className="flex items-center justify-between mb-3">
+                              <label className="block text-sm font-semibold text-gray-700">문제 수</label>
+                              <span className="text-purple-600 font-bold">{questionCount} 문제</span>
+                            </div>
+                            <input 
+                              type="range" 
+                              min="1" 
+                              max="20" 
+                              value={questionCount}
+                              onChange={(e) => setQuestionCount(parseInt(e.target.value))}
+                              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
+                            />
+                            <div className="flex justify-between text-xs text-gray-400 mt-2 font-medium">
+                              <span>1문제</span>
+                              <span>20문제</span>
+                            </div>
+                          </div>
+                          
+                          {/* Submit */}
+                          <button 
+                            onClick={handleStartAiQuiz}
+                            className="w-full flex items-center justify-center gap-2 py-4 bg-gray-900 hover:bg-black text-white font-bold rounded-xl shadow-md transition-colors"
+                          >
+                            <Play className="w-4 h-4" />
+                            AI 문제 생성 및 풀기
+                          </button>
+                        </div>
+                      </div>
+
                     </div>
                   )}
                 </div>
@@ -117,222 +200,6 @@ export default function GeometryPage() {
           
         </div>
       </main>
-    </div>
-  );
-}
-
-// ==========================================
-// Game Component
-// ==========================================
-function GeometryGame() {
-  const { user } = useAuth();
-  const [currentShape, setCurrentShape] = useState<Point[]>(INITIAL_SHAPE);
-  const [targetShape, setTargetShape] = useState<Point[]>([]);
-  const [moves, setMoves] = useState(0);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [saveMessage, setSaveMessage] = useState("");
-
-  const transform = (type: "x-axis" | "y-axis" | "origin" | "y=x", shape: Point[]) => {
-    return shape.map(p => {
-      switch (type) {
-        case "x-axis": return { x: p.x, y: -p.y };
-        case "y-axis": return { x: -p.x, y: p.y };
-        case "origin": return { x: -p.x, y: -p.y };
-        case "y=x": return { x: p.y, y: p.x };
-      }
-    });
-  };
-
-  const handleTransform = (type: "x-axis" | "y-axis" | "origin" | "y=x") => {
-    if (isSuccess) return;
-    setCurrentShape(prev => transform(type, prev));
-    setMoves(m => m + 1);
-  };
-
-  const generateTarget = () => {
-    let shape = INITIAL_SHAPE;
-    const types: ("x-axis" | "y-axis" | "origin" | "y=x")[] = ["x-axis", "y-axis", "origin", "y=x"];
-    const numTransforms = Math.floor(Math.random() * 2) + 1; 
-    
-    for (let i = 0; i < numTransforms; i++) {
-      const randomType = types[Math.floor(Math.random() * types.length)];
-      shape = transform(randomType, shape);
-    }
-    
-    if (JSON.stringify(shape) === JSON.stringify(INITIAL_SHAPE)) {
-      shape = transform("y-axis", shape);
-    }
-    
-    setTargetShape(shape);
-    setCurrentShape(INITIAL_SHAPE);
-    setMoves(0);
-    setIsSuccess(false);
-    setSaveMessage("");
-  };
-
-  useEffect(() => {
-    generateTarget();
-  }, []);
-
-  const saveResultToSupabase = async (finalMoves: number) => {
-    if (!user || user.id === "admin") {
-      setSaveMessage("학습 데이터는 학생 계정으로만 저장됩니다.");
-      return;
-    }
-    
-    setSaveMessage("서버에 결과를 저장 중입니다...");
-    
-    const { error } = await supabase
-      .from('geometry_game_results')
-      .insert([
-        {
-          student_id: user.id,
-          student_name: user.name,
-          school: user.school,
-          moves_count: finalMoves
-        }
-      ]);
-
-    if (error) {
-      console.error("Supabase Error:", error);
-      setSaveMessage("데이터 저장에 실패했습니다. (DB 연결 확인 필요)");
-    } else {
-      setSaveMessage("결과가 성공적으로 서버에 저장되었습니다!");
-    }
-  };
-
-  useEffect(() => {
-    if (targetShape.length > 0 && JSON.stringify(currentShape) === JSON.stringify(targetShape)) {
-      setIsSuccess(true);
-      saveResultToSupabase(moves);
-    }
-  }, [currentShape, targetShape]);
-
-  const toSvgX = (x: number) => (x + 10) * STEP;
-  const toSvgY = (y: number) => (10 - y) * STEP;
-
-  const pointsToSvgPolygon = (shape: Point[]) => {
-    return shape.map(p => `${toSvgX(p.x)},${toSvgY(p.y)}`).join(" ");
-  };
-
-  return (
-    <div className="flex flex-col lg:flex-row items-center justify-center gap-12 bg-white rounded-2xl p-8 border border-sky-100 shadow-sm">
-      {/* Game Board */}
-      <div className="relative bg-gray-50 rounded-3xl shadow-inner border border-gray-200 overflow-hidden" style={{ width: SVG_SIZE, height: SVG_SIZE }}>
-        <svg width={SVG_SIZE} height={SVG_SIZE} className="absolute inset-0 pointer-events-none">
-          {Array.from({ length: GRID_SIZE + 1 }).map((_, i) => (
-            <g key={i}>
-              <line 
-                x1={i * STEP} y1={0} x2={i * STEP} y2={SVG_SIZE} 
-                stroke={i === 10 ? "#94a3b8" : "#f1f5f9"} 
-                strokeWidth={i === 10 ? 2 : 1} 
-              />
-              <line 
-                x1={0} y1={i * STEP} x2={SVG_SIZE} y2={i * STEP} 
-                stroke={i === 10 ? "#94a3b8" : "#f1f5f9"} 
-                strokeWidth={i === 10 ? 2 : 1} 
-              />
-            </g>
-          ))}
-          
-          <line 
-            x1={0} y1={SVG_SIZE} x2={SVG_SIZE} y2={0} 
-            stroke="#e2e8f0" strokeWidth="2" strokeDasharray="5,5" 
-          />
-          <text x={SVG_SIZE - 40} y={30} fill="#94a3b8" fontSize="12" className="font-mono">y = x</text>
-          <text x={SVG_SIZE - 20} y={SVG_SIZE / 2 - 10} fill="#94a3b8" fontSize="12" className="font-bold">x</text>
-          <text x={SVG_SIZE / 2 + 10} y={20} fill="#94a3b8" fontSize="12" className="font-bold">y</text>
-
-          <polygon 
-            points={pointsToSvgPolygon(targetShape)} 
-            fill="#cbd5e1" 
-            className="opacity-50 transition-all duration-500"
-          />
-          
-          <polygon 
-            points={pointsToSvgPolygon(currentShape)} 
-            fill={isSuccess ? "#22c55e" : "#0ea5e9"} 
-            stroke={isSuccess ? "#16a34a" : "#0284c7"}
-            strokeWidth="2"
-            className="transition-all duration-500 ease-out"
-          />
-        </svg>
-
-        {isSuccess && (
-          <div className="absolute inset-0 bg-white/70 backdrop-blur-sm flex flex-col items-center justify-center animate-in fade-in zoom-in duration-300">
-            <div className="text-4xl mb-4">🎉</div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">성공입니다!</h2>
-            <p className="text-gray-600 mb-2">총 {moves}번의 이동으로 목표에 도달했습니다.</p>
-            
-            {saveMessage && (
-              <p className={`text-sm mb-6 ${saveMessage.includes('실패') ? 'text-red-600' : 'text-sky-600 font-medium'}`}>
-                {saveMessage}
-              </p>
-            )}
-
-            <button 
-              onClick={generateTarget}
-              className="px-6 py-3 bg-sky-500 hover:bg-sky-600 text-white font-bold rounded-xl shadow-sm transition-transform hover:-translate-y-1"
-            >
-              다음 단계 도전
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Controls */}
-      <div className="w-full lg:w-64 flex flex-col gap-4">
-        <div className="bg-sky-50/50 rounded-3xl p-6 shadow-sm border border-sky-100">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="font-bold text-gray-900">대칭이동 조작반</h3>
-            <button 
-              onClick={generateTarget}
-              className="p-2 hover:bg-sky-100 text-sky-600 rounded-full transition-colors"
-              title="새로운 목표"
-            >
-              <RefreshCw className="w-4 h-4" />
-            </button>
-          </div>
-          
-          <div className="space-y-3">
-            <button 
-              disabled={isSuccess}
-              onClick={() => handleTransform("x-axis")}
-              className="w-full py-3 px-4 bg-white text-sky-700 hover:bg-sky-50 rounded-xl font-medium transition-colors border border-sky-100 disabled:opacity-50 shadow-sm"
-            >
-              x축 대칭이동
-            </button>
-            <button 
-              disabled={isSuccess}
-              onClick={() => handleTransform("y-axis")}
-              className="w-full py-3 px-4 bg-white text-sky-700 hover:bg-sky-50 rounded-xl font-medium transition-colors border border-sky-100 disabled:opacity-50 shadow-sm"
-            >
-              y축 대칭이동
-            </button>
-            <button 
-              disabled={isSuccess}
-              onClick={() => handleTransform("origin")}
-              className="w-full py-3 px-4 bg-white text-sky-700 hover:bg-sky-50 rounded-xl font-medium transition-colors border border-sky-100 disabled:opacity-50 shadow-sm"
-            >
-              원점 대칭이동
-            </button>
-            <button 
-              disabled={isSuccess}
-              onClick={() => handleTransform("y=x")}
-              className="w-full py-3 px-4 bg-white text-sky-700 hover:bg-sky-50 rounded-xl font-medium transition-colors border border-sky-100 disabled:opacity-50 shadow-sm"
-            >
-              y = x 대칭이동
-            </button>
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-600">이동 횟수</span>
-            <span className="text-2xl font-bold text-gray-900">{moves}</span>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

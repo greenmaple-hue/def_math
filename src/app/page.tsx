@@ -20,55 +20,43 @@ export default function Home() {
       <div className="absolute inset-0 z-0 pointer-events-none flex items-center justify-center overflow-hidden">
         
         {/* Phase 0: Circles */}
-        <div className={`absolute inset-0 transition-opacity duration-1000 ${phase === 0 ? 'opacity-100' : 'opacity-0'}`}>
+        <div className={`absolute inset-0 transition-opacity duration-1000 ${phase === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
           <svg className="absolute inset-0 w-full h-full pointer-events-none">
-            {phase === 0 && (
-              <>
-                <circle cx="30%" cy="30%" r="150" fill="none" stroke="#bae6fd" strokeWidth="1.5" className="animate-draw-fast" />
-                <circle cx="70%" cy="60%" r="200" fill="none" stroke="#c7d2fe" strokeWidth="2" className="animate-draw" />
-                <circle cx="40%" cy="80%" r="100" fill="none" stroke="#fbcfe8" strokeWidth="1.5" className="animate-draw-delayed" />
-              </>
-            )}
+            <circle cx="30%" cy="30%" r="150" fill="none" stroke="#bae6fd" strokeWidth="1.5" className="animate-draw-fast" />
+            <circle cx="70%" cy="60%" r="200" fill="none" stroke="#c7d2fe" strokeWidth="2" className="animate-draw" />
+            <circle cx="40%" cy="80%" r="100" fill="none" stroke="#fbcfe8" strokeWidth="1.5" className="animate-draw-delayed" />
           </svg>
         </div>
 
         {/* Phase 1: Venn Diagram */}
-        <div className={`absolute inset-0 transition-opacity duration-1000 flex items-center justify-center ${phase === 1 ? 'opacity-100' : 'opacity-0'}`}>
+        <div className={`absolute inset-0 transition-opacity duration-1000 flex items-center justify-center ${phase === 1 ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
           <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet" className="w-full h-full max-w-2xl pointer-events-none opacity-80">
-            {phase === 1 && (
-              <>
-                {/* Intersection Area */}
-                <path d="M 200 86.6 A 100 100 0 0 0 200 213.4 A 100 100 0 0 0 200 86.6 Z" fill="#bae6fd" className="animate-fill" />
-                {/* Left Circle A */}
-                <circle cx="150" cy="150" r="100" fill="none" stroke="#94a3b8" strokeWidth="2" className="animate-draw" />
-                {/* Right Circle B */}
-                <circle cx="250" cy="150" r="100" fill="none" stroke="#94a3b8" strokeWidth="2" className="animate-draw-delayed" />
-                
-                {/* Labels */}
-                <text x="100" y="150" fill="#94a3b8" fontSize="24" className="animate-fill font-serif">A</text>
-                <text x="300" y="150" fill="#94a3b8" fontSize="24" className="animate-fill font-serif">B</text>
-              </>
-            )}
+            {/* Intersection Area */}
+            <path d="M 200 86.6 A 100 100 0 0 0 200 213.4 A 100 100 0 0 0 200 86.6 Z" fill="#bae6fd" className="animate-fill" />
+            {/* Left Circle A */}
+            <circle cx="150" cy="150" r="100" fill="none" stroke="#94a3b8" strokeWidth="2" className="animate-draw" />
+            {/* Right Circle B */}
+            <circle cx="250" cy="150" r="100" fill="none" stroke="#94a3b8" strokeWidth="2" className="animate-draw-delayed" />
+            
+            {/* Labels */}
+            <text x="100" y="150" fill="#94a3b8" fontSize="24" className="animate-fill font-serif">A</text>
+            <text x="300" y="150" fill="#94a3b8" fontSize="24" className="animate-fill font-serif">B</text>
           </svg>
         </div>
 
         {/* Phase 2: Graphs */}
-        <div className={`absolute inset-0 transition-opacity duration-1000 flex items-center justify-center ${phase === 2 ? 'opacity-100' : 'opacity-0'}`}>
+        <div className={`absolute inset-0 transition-opacity duration-1000 flex items-center justify-center ${phase === 2 ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
           <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-full opacity-60 pointer-events-none">
-            {phase === 2 && (
-              <>
-                {/* Axes */}
-                <line x1="50" y1="0" x2="50" y2="100" stroke="#cbd5e1" strokeWidth="0.2" className="animate-draw-fast" />
-                <line x1="0" y1="50" x2="100" y2="50" stroke="#cbd5e1" strokeWidth="0.2" className="animate-draw-fast" />
-                
-                {/* Rational function style */}
-                <path d="M 50,0 Q 55,45 100,50" fill="none" stroke="#bae6fd" strokeWidth="0.5" className="animate-draw-delayed" />
-                <path d="M 0,50 Q 45,55 50,100" fill="none" stroke="#bae6fd" strokeWidth="0.5" className="animate-draw-delayed" />
-                
-                {/* Irrational function style */}
-                <path d="M 50,50 Q 75,25 100,20" fill="none" stroke="#c7d2fe" strokeWidth="0.5" className="animate-draw" />
-              </>
-            )}
+            {/* Axes */}
+            <line x1="50" y1="0" x2="50" y2="100" stroke="#cbd5e1" strokeWidth="0.2" className="animate-draw-fast" />
+            <line x1="0" y1="50" x2="100" y2="50" stroke="#cbd5e1" strokeWidth="0.2" className="animate-draw-fast" />
+            
+            {/* Rational function style */}
+            <path d="M 50,0 Q 55,45 100,50" fill="none" stroke="#bae6fd" strokeWidth="0.5" className="animate-draw-delayed" />
+            <path d="M 0,50 Q 45,55 50,100" fill="none" stroke="#bae6fd" strokeWidth="0.5" className="animate-draw-delayed" />
+            
+            {/* Irrational function style */}
+            <path d="M 50,50 Q 75,25 100,20" fill="none" stroke="#c7d2fe" strokeWidth="0.5" className="animate-draw" />
           </svg>
         </div>
       </div>
