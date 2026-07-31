@@ -15,28 +15,34 @@ body {
 }
 
 @keyframes draw-path {
-  from {
+  0% {
     stroke-dashoffset: 1000;
+    stroke-opacity: 1;
   }
-  to {
+  60% {
     stroke-dashoffset: 0;
+    stroke-opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    stroke-opacity: 0;
   }
 }
 
 .animate-draw {
   stroke-dasharray: 1000;
-  animation: draw-path 3s ease-in-out forwards;
+  animation: draw-path 4s ease-in-out infinite;
 }
 
 .animate-draw-fast {
   stroke-dasharray: 1000;
-  animation: draw-path 1.5s ease-in-out forwards;
+  animation: draw-path 3s ease-in-out infinite;
 }
 
 .animate-draw-delayed {
   stroke-dasharray: 1000;
   stroke-dashoffset: 1000;
-  animation: draw-path 2.5s ease-in-out 0.5s forwards;
+  animation: draw-path 4s ease-in-out 0.5s infinite;
 }
 
 @keyframes fill-fade-in {

@@ -1,58 +1,82 @@
-"use client";
-
-import { useState, useEffect } from "react";
+import { create } from 'zustand';
+import { supabase } from './supabase';
 
 export interface User {
-  id: string; // 학번 (아이디로 사용)
+  id: string; // 학번 또는 admin
   name: string;
   school: string;
-  password?: string; // 클라이언트 사이드 mock이므로 해싱은 생략하거나 간단히 저장
+  password?: string; // 클라이언트에서는 비밀번호를 숨기는 것이 좋으나, 과제 요구사항상 포함
 }
 
-const USERS_KEY = "def_math_users";
-const CURRENT_USER_KEY = "def_math_current_user";
-
-export function getUsers(): User[] {
-  if (typeof window === "undefined") return [];
-  const data = localStorage.getItem(USERS_KEY);
-  return data ? JSON.parse(data) : [];
+interface AuthState {
+  user: User | null;
+  isLoading: boolean;
+  login: (user: User) => void;
+  logout: () => void;
 }
 
-export function saveUsers(users: User[]) {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
-}
+// 1. Zustand Store (상태 관리)
+export const useAuth = create<AuthState>((set) => ({
+  user: null,
+  isLoading: true,
+  login: (user) => {
+    localStorage.setItem("currentUser", JSON.stringify(user));
+    set({ user });
+  },
+  logout: () => {
+    localStorage.removeItem("currentUser");
+    set({ user: null });
+  },
+}));
 
-export function getCurrentUser(): User | null {
-  if (typeof window === "undefined") return null;
-  const data = localStorage.getItem(CURRENT_USER_KEY);
-  return data ? JSON.parse(data) : null;
-}
-
-export function setCurrentUser(user: User | null) {
-  if (typeof window === "undefined") return;
-  if (user) {
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
+// 초기화: 클라이언트 마운트 시 로컬스토리지 확인
+if (typeof window !== "undefined") {
+  const stored = localStorage.getItem("currentUser");
+  if (stored) {
+    try {
+      useAuth.setState({ user: JSON.parse(stored), isLoading: false });
+    } catch {
+      useAuth.setState({ isLoading: false });
+    }
   } else {
-    localStorage.removeItem(CURRENT_USER_KEY);
+    useAuth.setState({ isLoading: false });
   }
-  window.dispatchEvent(new Event("auth-change"));
 }
 
-export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+// 2. Supabase DB 연동 함수들
 
-  useEffect(() => {
-    // Initial load
-    setUser(getCurrentUser());
-    setIsLoading(false);
+export const fetchUsers = async (): Promise<User[]> => {
+  const { data, error } = await supabase.from('users').select('*');
+  if (error) {
+    console.error("Error fetching users from Supabase:", error);
+    return [];
+  }
+  return data as User[];
+};
 
-    // Listen to changes
-    const handleAuthChange = () => setUser(getCurrentUser());
-    window.addEventListener("auth-change", handleAuthChange);
-    return () => window.removeEventListener("auth-change", handleAuthChange);
-  }, []);
+export const registerUser = async (user: User): Promise<boolean> => {
+  const { error } = await supabase.from('users').insert([user]);
+  if (error) {
+    console.error("Error registering user to Supabase:", error);
+    return false;
+  }
+  return true;
+};
 
-  return { user, setUser: setCurrentUser, isLoading };
-}
+export const updateUser = async (id: string, updates: Partial<User>): Promise<boolean> => {
+  const { error } = await supabase.from('users').update(updates).eq('id', id);
+  if (error) {
+    console.error("Error updating user in Supabase:", error);
+    return false;
+  }
+  return true;
+};
+
+export const deleteUser = async (id: string): Promise<boolean> => {
+  const { error } = await supabase.from('users').delete().eq('id', id);
+  if (error) {
+    console.error("Error deleting user from Supabase:", error);
+    return false;
+  }
+  return true;
+};

@@ -7,7 +7,7 @@ import { useAuth } from "@/lib/auth";
 export default function Header() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"login" | "signup" | "edit">("login");
-  const { user, setUser } = useAuth();
+  const { user, logout } = useAuth();
 
   const handleOpenLogin = () => {
     setModalMode("login");
@@ -20,7 +20,7 @@ export default function Header() {
   };
 
   const handleLogout = () => {
-    setUser(null);
+    logout();
     alert("로그아웃 되었습니다.");
     window.location.href = "/";
   };

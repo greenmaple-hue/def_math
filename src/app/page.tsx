@@ -34,7 +34,7 @@ export default function Home() {
 
         {/* Phase 1: Venn Diagram */}
         <div className={`absolute inset-0 transition-opacity duration-1000 flex items-center justify-center ${phase === 1 ? 'opacity-100' : 'opacity-0'}`}>
-          <svg viewBox="0 0 400 300" className="w-full max-w-2xl h-auto pointer-events-none">
+          <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet" className="w-full h-full max-w-2xl pointer-events-none opacity-80">
             {phase === 1 && (
               <>
                 {/* Intersection Area */}

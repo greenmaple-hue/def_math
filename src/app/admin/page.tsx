@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { User, getUsers, saveUsers, useAuth } from "@/lib/auth";
+import { User, fetchUsers, updateUser, deleteUser, useAuth } from "@/lib/auth";
 import { ChevronRight, ChevronDown, School, Users, User as UserIcon } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -29,7 +29,11 @@ export default function AdminDashboard() {
       return;
     }
     
-    setUsers(getUsers());
+    const loadUsers = async () => {
+      const data = await fetchUsers();
+      setUsers(data);
+    };
+    loadUsers();
   }, [user, isLoading]);
 
   if (isLoading) {
@@ -43,35 +47,43 @@ export default function AdminDashboard() {
     return specialCharRegex.test(password);
   };
 
-  const handleUpdatePassword = () => {
+  const handleUpdatePassword = async () => {
     if (!selectedUser) return;
     if (!validatePassword(newPassword)) {
       return alert("비밀번호에는 특수문자가 최소 1개 이상 포함되어야 합니다.");
     }
     
-    const updatedUsers = users.map(u => 
-      u.id === selectedUser.id ? { ...u, password: newPassword } : u
-    );
-    saveUsers(updatedUsers);
-    setUsers(updatedUsers);
-    setSelectedUser({ ...selectedUser, password: newPassword });
-    setNewPassword("");
-    alert("비밀번호가 성공적으로 변경되었습니다.");
+    const success = await updateUser(selectedUser.id, { password: newPassword });
+    if (success) {
+      const updatedUsers = users.map(u => 
+        u.id === selectedUser.id ? { ...u, password: newPassword } : u
+      );
+      setUsers(updatedUsers);
+      setSelectedUser({ ...selectedUser, password: newPassword });
+      setNewPassword("");
+      alert("비밀번호가 성공적으로 변경되었습니다.");
+    } else {
+      alert("비밀번호 변경에 실패했습니다. DB 연결을 확인해주세요.");
+    }
   };
 
-  const handleDeleteAccount = () => {
+  const handleDeleteAccount = async () => {
     if (!selectedUser) return;
     if (deletePassword !== "260301") {
       return alert("관리자 비밀번호가 일치하지 않습니다.");
     }
 
-    const updatedUsers = users.filter(u => u.id !== selectedUser.id);
-    saveUsers(updatedUsers);
-    setUsers(updatedUsers);
-    setSelectedUser(null);
-    setShowDeleteConfirm(false);
-    setDeletePassword("");
-    alert("계정이 성공적으로 삭제되었습니다.");
+    const success = await deleteUser(selectedUser.id);
+    if (success) {
+      const updatedUsers = users.filter(u => u.id !== selectedUser.id);
+      setUsers(updatedUsers);
+      setSelectedUser(null);
+      setShowDeleteConfirm(false);
+      setDeletePassword("");
+      alert("계정이 성공적으로 삭제되었습니다.");
+    } else {
+      alert("계정 삭제에 실패했습니다. DB 연결을 확인해주세요.");
+    }
   };
 
   // Build Hierarchy: School -> Grade -> Class -> User[]
