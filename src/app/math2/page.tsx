@@ -34,9 +34,9 @@ export default function Math2Page() {
           </a>
 
           {/* Chapter 2 */}
-          <div className="group flex flex-col justify-between bg-white rounded-3xl p-8 shadow-sm border border-gray-100 opacity-60 cursor-not-allowed">
+          <a href="/math2/sets-and-propositions" className="group flex flex-col justify-between bg-white rounded-3xl p-8 shadow-sm border border-gray-100 transition-all hover:shadow-md hover:border-sky-200 hover:-translate-y-1">
             <div className="space-y-4">
-              <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-bold text-xl">
+              <div className="w-12 h-12 rounded-full bg-gray-100 group-hover:bg-sky-100 flex items-center justify-center text-gray-600 group-hover:text-sky-600 font-bold text-xl transition-colors">
                 II
               </div>
               <h2 className="text-xl font-bold text-gray-900">집합과 명제</h2>
@@ -44,15 +44,16 @@ export default function Math2Page() {
                 집합의 뜻과 표현, 집합의 연산, 그리고 명제와 조건에 대해 학습합니다.
               </p>
             </div>
-            <div className="mt-8 text-sm font-semibold text-gray-400">
-              준비 중입니다
+            <div className="mt-8 flex items-center justify-between text-sm font-semibold text-sky-500 opacity-0 transform translate-y-2 transition-all group-hover:opacity-100 group-hover:translate-y-0">
+              <span>학습하기</span>
+              <span>&rarr;</span>
             </div>
-          </div>
+          </a>
 
           {/* Chapter 3 */}
-          <div className="group flex flex-col justify-between bg-white rounded-3xl p-8 shadow-sm border border-gray-100 opacity-60 cursor-not-allowed">
+          <a href="/math2/functions-and-graphs" className="group flex flex-col justify-between bg-white rounded-3xl p-8 shadow-sm border border-gray-100 transition-all hover:shadow-md hover:border-sky-200 hover:-translate-y-1">
             <div className="space-y-4">
-              <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-bold text-xl">
+              <div className="w-12 h-12 rounded-full bg-gray-100 group-hover:bg-sky-100 flex items-center justify-center text-gray-600 group-hover:text-sky-600 font-bold text-xl transition-colors">
                 III
               </div>
               <h2 className="text-xl font-bold text-gray-900">함수와 그래프</h2>
@@ -60,10 +61,11 @@ export default function Math2Page() {
                 함수의 뜻과 그래프, 합성함수와 역함수, 유리함수와 무리함수를 학습합니다.
               </p>
             </div>
-            <div className="mt-8 text-sm font-semibold text-gray-400">
-              준비 중입니다
+            <div className="mt-8 flex items-center justify-between text-sm font-semibold text-sky-500 opacity-0 transform translate-y-2 transition-all group-hover:opacity-100 group-hover:translate-y-0">
+              <span>학습하기</span>
+              <span>&rarr;</span>
             </div>
-          </div>
+          </a>
 
         </div>
       </div>

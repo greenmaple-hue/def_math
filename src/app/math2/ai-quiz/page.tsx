@@ -11,6 +11,11 @@ function QuizContent() {
   
   const difficulty = searchParams.get("difficulty") || "중";
   const count = parseInt(searchParams.get("count") || "5", 10);
+  const chapter = searchParams.get("chapter") || "공통수학 2";
+
+  // Parse chapter for display (e.g. "공통수학 2 - 도형의 방정식 - 도형의 이동(대칭이동, 평행이동)")
+  const chapterParts = chapter.split(" - ");
+  const shortChapter = chapterParts[chapterParts.length - 1] || chapter;
 
   const [questions, setQuestions] = useState<any[]>([]);
   const [answers, setAnswers] = useState<Record<number, number>>({});
@@ -23,7 +28,7 @@ function QuizContent() {
         const res = await fetch("/api/generate-quiz", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ difficulty, count })
+          body: JSON.stringify({ difficulty, count, chapter })
         });
         
         const data = await res.json().catch(() => ({}));
@@ -40,7 +45,7 @@ function QuizContent() {
     };
     
     fetchQuestions();
-  }, [count, difficulty]);
+  }, [count, difficulty, chapter]);
 
   const handleSelectOption = (qId: number, optionIndex: number) => {
     setAnswers(prev => ({ ...prev, [qId]: optionIndex }));
@@ -66,7 +71,7 @@ function QuizContent() {
     });
 
     const resultSummary = {
-      chapter: "도형의 이동 - 대칭이동",
+      chapter: chapter,
       difficulty,
       questionCount: questions.length,
       score,

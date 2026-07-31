@@ -19,7 +19,7 @@ export default function AiQuizResultPage() {
       setResult(parsed);
       saveToSupabase(parsed);
     } else {
-      router.push("/math2/geometry");
+      router.push("/math2");
     }
   }, []);
 
@@ -62,7 +62,7 @@ export default function AiQuizResultPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <header className="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <a href="/math2/geometry" className="p-2 -ml-2 rounded-full hover:bg-gray-100 transition-colors text-gray-500">
+          <a href="/math2" className="p-2 -ml-2 rounded-full hover:bg-gray-100 transition-colors text-gray-500">
             <Home className="w-5 h-5" />
           </a>
           <div>
