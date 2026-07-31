@@ -10,13 +10,13 @@ export default function GeometryPage() {
   const [expandedSub, setExpandedSub] = useState<number>(2);
 
   // AI Quiz Form State
-  const [difficulty, setDifficulty] = useState<"최하"|"하"|"중"|"상"|"최상">("중");
+  const [difficulties, setDifficulties] = useState<string[]>(["중"]);
   const [questionCount, setQuestionCount] = useState<number>(5);
 
   const handleStartAiQuiz = () => {
     // Navigate to AI quiz page with query params
     const searchParams = new URLSearchParams({
-      difficulty,
+      difficulty: difficulties.join(","),
       count: questionCount.toString()
     });
     router.push(`/math2/geometry/ai-quiz?${searchParams.toString()}`);
@@ -142,21 +142,33 @@ export default function GeometryPage() {
                         <div className="p-6 space-y-6">
                           {/* Difficulty */}
                           <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-3">난이도 선택</label>
+                            <label className="block text-sm font-semibold text-gray-700 mb-3">난이도 선택 (중복 가능)</label>
                             <div className="flex flex-wrap gap-2">
-                              {["최하", "하", "중", "상", "최상"].map((level) => (
-                                <button
-                                  key={level}
-                                  onClick={() => setDifficulty(level as any)}
-                                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                                    difficulty === level 
-                                      ? "bg-purple-600 text-white shadow-md shadow-purple-200" 
-                                      : "bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100"
-                                  }`}
-                                >
-                                  {level}
-                                </button>
-                              ))}
+                              {["최하", "하", "중", "상", "최상"].map((level) => {
+                                const isSelected = difficulties.includes(level);
+                                return (
+                                  <button
+                                    key={level}
+                                    onClick={() => {
+                                      setDifficulties(prev => {
+                                        if (prev.includes(level)) {
+                                          if (prev.length === 1) return prev; // prevent emptying
+                                          return prev.filter(d => d !== level);
+                                        } else {
+                                          return [...prev, level];
+                                        }
+                                      });
+                                    }}
+                                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                                      isSelected 
+                                        ? "bg-purple-600 text-white shadow-md shadow-purple-200" 
+                                        : "bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100"
+                                    }`}
+                                  >
+                                    {level}
+                                  </button>
+                                );
+                              })}
                             </div>
                           </div>
 

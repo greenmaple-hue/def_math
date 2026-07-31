@@ -145,12 +145,22 @@ export default function AiQuizResultPage() {
                   )}
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-4 leading-relaxed">
+                  <h4 className="font-medium text-gray-900 mb-2 leading-relaxed">
                     <span className="font-bold mr-2">Q{idx + 1}.</span>
+                    <span className="text-xs px-2 py-1 bg-gray-100 text-gray-500 rounded mr-2 font-bold border border-gray-200">
+                      난이도: {q.difficulty || result.difficulty}
+                    </span>
                     {q.questionText}
                   </h4>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                  {q.imageSvg && (
+                    <div 
+                      className="w-full max-w-sm my-4 p-4 bg-white rounded-xl border border-gray-100 shadow-sm flex items-center justify-center svg-container"
+                      dangerouslySetInnerHTML={{ __html: q.imageSvg }}
+                    />
+                  )}
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 mt-2">
                     {q.options.map((opt: string, oIdx: number) => {
                       const isStudentAnswer = q.studentAnswer === oIdx;
                       const isCorrectAnswer = q.correctAnswer === oIdx;

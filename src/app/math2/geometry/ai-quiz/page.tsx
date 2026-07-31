@@ -127,12 +127,26 @@ function QuizContent() {
         {questions.map((q, idx) => (
           <div key={q.id} className="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm">
             <div className="flex gap-4 mb-6">
-              <span className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-purple-100 text-purple-700 font-bold rounded-lg text-sm">
+              <span className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-purple-100 text-purple-700 font-bold rounded-lg text-sm mt-1">
                 {idx + 1}
               </span>
-              <h2 className="text-lg font-medium text-gray-900 leading-relaxed pt-1">
-                {q.questionText}
-              </h2>
+              <div className="flex flex-col gap-4 w-full">
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-1 bg-gray-100 text-gray-500 rounded text-xs font-bold border border-gray-200">
+                    난이도: {q.difficulty || difficulty}
+                  </span>
+                </div>
+                <h2 className="text-lg font-medium text-gray-900 leading-relaxed">
+                  {q.questionText}
+                </h2>
+                
+                {q.imageSvg && (
+                  <div 
+                    className="w-full max-w-sm mx-auto my-4 p-4 bg-white rounded-xl border border-gray-100 shadow-sm flex items-center justify-center svg-container"
+                    dangerouslySetInnerHTML={{ __html: q.imageSvg }}
+                  />
+                )}
+              </div>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-12">
