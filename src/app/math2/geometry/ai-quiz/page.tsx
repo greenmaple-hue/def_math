@@ -1,29 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeft, CheckCircle2, ChevronRight, Brain } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ChevronRight, Brain, Loader2 } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
-
-// 더미 문제 생성기
-const generateDummyQuestions = (count: number, difficulty: string) => {
-  const dummyQuestions = [];
-  for (let i = 1; i <= count; i++) {
-    dummyQuestions.push({
-      id: i,
-      questionText: `다음 점을 원점에 대하여 대칭이동한 점의 좌표를 고르시오. (문제 ${i} - 난이도: ${difficulty})`,
-      options: [
-        "(2, 3)",
-        "(-2, 3)",
-        "(-2, -3)",
-        "(2, -3)"
-      ],
-      correctAnswer: 2, // 3번째 옵션 (0-indexed)
-      explanation: "원점 대칭이동은 x좌표와 y좌표의 부호를 모두 바꾸는 변환입니다. 따라서 (2,3) -> (-2,-3)이 됩니다."
-    });
-  }
-  return dummyQuestions;
-};
-
 import { Suspense } from "react";
 
 function QuizContent() {
@@ -36,10 +15,29 @@ function QuizContent() {
   const [questions, setQuestions] = useState<any[]>([]);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // 향후 실제 LLM API 연동 시 이곳에서 fetch를 수행합니다.
-    setQuestions(generateDummyQuestions(count, difficulty));
+    const fetchQuestions = async () => {
+      try {
+        const res = await fetch("/api/generate-quiz", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ difficulty, count })
+        });
+        
+        if (!res.ok) {
+          throw new Error("문제를 생성하는데 실패했습니다.");
+        }
+        
+        const data = await res.json();
+        setQuestions(data.questions);
+      } catch (err: any) {
+        setError(err.message);
+      }
+    };
+    
+    fetchQuestions();
   }, [count, difficulty]);
 
   const handleSelectOption = (qId: number, optionIndex: number) => {
@@ -77,8 +75,25 @@ function QuizContent() {
     router.push("/math2/geometry/ai-quiz/result");
   };
 
-  if (questions.length === 0) {
-    return <div className="min-h-screen flex items-center justify-center bg-gray-50"><p>문제 생성 중...</p></div>;
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 gap-4">
+        <p className="text-red-500 font-bold">{error}</p>
+        <button onClick={() => window.location.reload()} className="px-4 py-2 bg-purple-100 text-purple-700 rounded-lg">다시 시도</button>
+      </div>
+    );
+  }
+
+  if (questions.length === 0 || !questions) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 gap-6">
+        <Loader2 className="w-12 h-12 text-purple-500 animate-spin" />
+        <div className="text-center">
+          <h2 className="text-xl font-bold text-gray-900 mb-2">AI가 문제를 생성하고 있습니다...</h2>
+          <p className="text-gray-500">2022 개정 교육과정에 맞춘 최적의 문제들을 준비 중입니다.</p>
+        </div>
+      </div>
+    );
   }
 
   return (
