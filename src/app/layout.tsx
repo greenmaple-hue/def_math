@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Noto_Sans_KR } from "next/font/google";
 import "./globals.css";
+import Header from "@/components/Header";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -25,17 +26,7 @@ export default function RootLayout({
   return (
     <html lang="ko" className={`${inter.variable} ${notoSansKr.variable} antialiased`}>
       <body className="min-h-screen flex flex-col bg-gray-50 text-black font-sans tracking-tight">
-        {/* Header */}
-        <header className="sticky top-0 z-50 w-full border-b border-gray-200/50 bg-white/70 backdrop-blur-md">
-          <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-8">
-            <div className="text-xl font-bold tracking-tighter">def_math</div>
-            <nav className="flex items-center gap-6 text-sm font-medium text-gray-600">
-              <a href="#" className="hover:text-black transition-colors">Features</a>
-              <a href="#" className="hover:text-black transition-colors">Pricing</a>
-              <a href="#" className="hover:text-black transition-colors">About</a>
-            </nav>
-          </div>
-        </header>
+        <Header />
 
         {/* Main */}
         <main className="flex-1 flex flex-col">{children}</main>
