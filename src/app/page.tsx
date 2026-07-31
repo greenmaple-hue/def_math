@@ -9,7 +9,7 @@ export default function Home() {
             환영합니다!
           </h1>
           <p className="text-lg sm:text-xl text-gray-500 max-w-xl mx-auto tracking-tight">
-            가장 직관적이고 아름다운 수학의 세계를 경험해보세요. 미니멀한 디자인과 압도적인 성능이 만나 새로운 기준을 제시합니다.
+            가장 직관적이고 아름다운 수학의 세계를 경험해보세요.
           </p>
         </div>
         
