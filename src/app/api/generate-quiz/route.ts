@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
+export const maxDuration = 60; // Set max duration for Vercel Hobby plan
+
 export async function POST(req: Request) {
   try {
     const openai = new OpenAI({

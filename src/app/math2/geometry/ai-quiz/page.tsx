@@ -26,11 +26,13 @@ function QuizContent() {
           body: JSON.stringify({ difficulty, count })
         });
         
+        const data = await res.json().catch(() => ({}));
+
         if (!res.ok) {
-          throw new Error("문제를 생성하는데 실패했습니다.");
+          console.error("API Error Response:", data);
+          throw new Error(data.details || data.error || "문제를 생성하는데 실패했습니다.");
         }
         
-        const data = await res.json();
         setQuestions(data.questions);
       } catch (err: any) {
         setError(err.message);
