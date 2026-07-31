@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { User, getUsers, saveUsers, useAuth } from "@/lib/auth";
 
 export default function AdminDashboard() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   
@@ -14,24 +14,36 @@ export default function AdminDashboard() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
+    if (isLoading) return;
+    
     // Basic protection (Client side only)
-    if (user === undefined) return;
-    if (user?.id !== "admin") {
+    if (!user || user.id !== "admin") {
       alert("접근 권한이 없습니다.");
       window.location.href = "/";
       return;
     }
     
-    // Load users (excluding admin itself if it's there, but admin is not in USERS_KEY usually)
+    // Load users (excluding admin itself if it's there)
     const loadedUsers = getUsers();
     setUsers(loadedUsers);
-  }, [user]);
+  }, [user, isLoading]);
+
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center bg-gray-50"><p className="text-gray-500">로딩 중...</p></div>;
+  }
 
   if (!user || user.id !== "admin") return null;
 
+  const validatePassword = (password: string) => {
+    const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
+    return specialCharRegex.test(password);
+  };
+
   const handleUpdatePassword = () => {
     if (!selectedUser) return;
-    if (newPassword.length !== 6) return alert("비밀번호는 6자리여야 합니다.");
+    if (!validatePassword(newPassword)) {
+      return alert("비밀번호에는 특수문자가 최소 1개 이상 포함되어야 합니다.");
+    }
     
     const updatedUsers = users.map(u => 
       u.id === selectedUser.id ? { ...u, password: newPassword } : u
@@ -125,11 +137,10 @@ export default function AdminDashboard() {
                   <h3 className="font-semibold text-gray-900 mb-4">비밀번호 강제 변경</h3>
                   <div className="flex gap-3">
                     <input
-                      type="password"
-                      maxLength={6}
+                      type="text"
                       value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value.replace(/[^0-9]/g, ''))}
-                      placeholder="새 비밀번호 6자리"
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="새 비밀번호 (특수문자 포함)"
                       className="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"
                     />
                     <button

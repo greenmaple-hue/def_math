@@ -41,10 +41,12 @@ export function setCurrentUser(user: User | null) {
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Initial load
     setUser(getCurrentUser());
+    setIsLoading(false);
 
     // Listen to changes
     const handleAuthChange = () => setUser(getCurrentUser());
@@ -52,5 +54,5 @@ export function useAuth() {
     return () => window.removeEventListener("auth-change", handleAuthChange);
   }, []);
 
-  return { user, setUser: setCurrentUser };
+  return { user, setUser: setCurrentUser, isLoading };
 }

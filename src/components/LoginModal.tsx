@@ -51,16 +51,21 @@ export default function LoginModal({
   }, [isOpen, initialMode, user]);
 
   const validateStudentId = (studentId: string) => {
-    if (school !== "부산항공고등학교") return true; // Only validate for this school
+    if (school !== "부산항공고등학교") return true;
     const regex = /^[1-3][1-6](0[1-9]|1[0-6])$/;
     return regex.test(studentId);
+  };
+
+  const validatePassword = (password: string) => {
+    const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
+    return specialCharRegex.test(password);
   };
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    if (id === "0000" && pw === "260301") {
+    if (id === "admin" && pw === "260301") {
       const adminUser: User = { id: "admin", name: "관리자", school: "System" };
       setUser(adminUser);
       onClose();
@@ -85,7 +90,7 @@ export default function LoginModal({
 
     if (!name.trim()) return setError("이름을 입력해주세요.");
     if (!validateStudentId(id)) return setError("유효하지 않은 부산항공고등학교 학번입니다. (예: 1학년 1반 1번 -> 1101)");
-    if (pw.length !== 6) return setError("비밀번호는 생년월일 6자리여야 합니다.");
+    if (!validatePassword(pw)) return setError("비밀번호에는 특수문자가 최소 1개 이상 포함되어야 합니다.");
 
     const users = getUsers();
     if (users.find(u => u.id === id)) {
@@ -106,10 +111,9 @@ export default function LoginModal({
 
     if (!user) return;
     if (!validateStudentId(id)) return setError("유효하지 않은 학번입니다.");
-    if (pw.length !== 6) return setError("비밀번호는 생년월일 6자리여야 합니다.");
+    if (!validatePassword(pw)) return setError("비밀번호에는 특수문자가 최소 1개 이상 포함되어야 합니다.");
 
     const users = getUsers();
-    // Check if new ID conflicts with another user
     if (id !== user.id && users.find(u => u.id === id)) {
       return setError("이미 존재하는 학번으로는 변경할 수 없습니다.");
     }
@@ -164,7 +168,7 @@ export default function LoginModal({
                   value={id}
                   onChange={(e) => setId(e.target.value)}
                   className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-3 text-sm focus:bg-white focus:border-sky-500 focus:outline-none focus:ring-4 focus:ring-sky-500/10 transition-all"
-                  placeholder="학번을 입력하세요 (관리자는 0000)"
+                  placeholder="학번을 입력하세요"
                 />
               </div>
               <div>
@@ -234,15 +238,14 @@ export default function LoginModal({
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  비밀번호 <span className="text-sky-500 text-[11px] ml-1 font-normal">* 생년월일 6자리</span>
+                  비밀번호 <span className="text-sky-500 text-[11px] ml-1 font-normal">* 특수문자 포함</span>
                 </label>
                 <input 
                   type="password" 
-                  maxLength={6}
                   value={pw}
-                  onChange={(e) => setPw(e.target.value.replace(/[^0-9]/g, ''))}
+                  onChange={(e) => setPw(e.target.value)}
                   className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-3 text-sm focus:bg-white focus:border-sky-500 focus:outline-none focus:ring-4 focus:ring-sky-500/10 transition-all"
-                  placeholder="YYMMDD"
+                  placeholder="특수문자가 포함된 비밀번호"
                 />
               </div>
               
@@ -299,15 +302,14 @@ export default function LoginModal({
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  새 비밀번호 <span className="text-sky-500 text-[11px] ml-1 font-normal">* 생년월일 6자리</span>
+                  새 비밀번호 <span className="text-sky-500 text-[11px] ml-1 font-normal">* 특수문자 포함</span>
                 </label>
                 <input 
                   type="password" 
-                  maxLength={6}
                   value={pw}
-                  onChange={(e) => setPw(e.target.value.replace(/[^0-9]/g, ''))}
+                  onChange={(e) => setPw(e.target.value)}
                   className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-3 text-sm focus:bg-white focus:border-sky-500 focus:outline-none focus:ring-4 focus:ring-sky-500/10 transition-all"
-                  placeholder="YYMMDD"
+                  placeholder="특수문자가 포함된 비밀번호"
                 />
               </div>
               
