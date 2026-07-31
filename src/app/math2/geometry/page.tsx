@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { ArrowLeft, RefreshCw } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/lib/auth";
 
 type Point = { x: number; y: number };
 
@@ -21,10 +23,12 @@ const GRID_SIZE = 20; // -10 to 10
 const STEP = SVG_SIZE / GRID_SIZE; // 30px per unit
 
 export default function GeometryGame() {
+  const { user } = useAuth();
   const [currentShape, setCurrentShape] = useState<Point[]>(INITIAL_SHAPE);
   const [targetShape, setTargetShape] = useState<Point[]>([]);
   const [moves, setMoves] = useState(0);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [saveMessage, setSaveMessage] = useState("");
 
   // Transformations
   const transform = (type: "x-axis" | "y-axis" | "origin" | "y=x", shape: Point[]) => {
@@ -63,15 +67,44 @@ export default function GeometryGame() {
     setCurrentShape(INITIAL_SHAPE);
     setMoves(0);
     setIsSuccess(false);
+    setSaveMessage("");
   };
 
   useEffect(() => {
     generateTarget();
   }, []);
 
+  const saveResultToSupabase = async (finalMoves: number) => {
+    if (!user || user.id === "admin") {
+      setSaveMessage("학습 데이터는 학생 계정으로만 저장됩니다.");
+      return;
+    }
+    
+    setSaveMessage("서버에 결과를 저장 중입니다...");
+    
+    const { error } = await supabase
+      .from('geometry_game_results')
+      .insert([
+        {
+          student_id: user.id,
+          student_name: user.name,
+          school: user.school,
+          moves_count: finalMoves
+        }
+      ]);
+
+    if (error) {
+      console.error("Supabase Error:", error);
+      setSaveMessage("데이터 저장에 실패했습니다. (DB 연결 확인 필요)");
+    } else {
+      setSaveMessage("결과가 성공적으로 서버에 저장되었습니다!");
+    }
+  };
+
   useEffect(() => {
     if (targetShape.length > 0 && JSON.stringify(currentShape) === JSON.stringify(targetShape)) {
       setIsSuccess(true);
+      saveResultToSupabase(moves);
     }
   }, [currentShape, targetShape]);
 
@@ -154,7 +187,14 @@ export default function GeometryGame() {
             <div className="absolute inset-0 bg-white/60 backdrop-blur-sm flex flex-col items-center justify-center animate-in fade-in zoom-in duration-300">
               <div className="text-4xl mb-4">🎉</div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">성공입니다!</h2>
-              <p className="text-gray-600 mb-6">총 {moves}번의 이동으로 목표에 도달했습니다.</p>
+              <p className="text-gray-600 mb-2">총 {moves}번의 이동으로 목표에 도달했습니다.</p>
+              
+              {saveMessage && (
+                <p className={`text-sm mb-6 ${saveMessage.includes('실패') ? 'text-red-600' : 'text-sky-600 font-medium'}`}>
+                  {saveMessage}
+                </p>
+              )}
+
               <button 
                 onClick={generateTarget}
                 className="px-6 py-3 bg-sky-500 hover:bg-sky-600 text-white font-bold rounded-xl shadow-sm transition-transform hover:-translate-y-1"
