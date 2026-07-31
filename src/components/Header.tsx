@@ -78,6 +78,10 @@ export default function Header() {
               </button>
               <DropdownList />
             </div>
+            
+            <a href="/qna" className="hover:text-black transition-colors py-4">
+              QNA 게시판
+            </a>
           </nav>
 
           {/* Right: User actions */}
